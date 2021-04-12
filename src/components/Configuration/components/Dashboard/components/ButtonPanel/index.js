@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteSessions } from '../../../../../../services/api/session';
 import { setLanguage } from '../../../../../../shared/actions/language';
 import logout from '../../../../../../shared/actions/multiple/logout';
+import useChangeLanguage from '../../../../../../shared/hooks/useChangeLanguage';
 import { LANGUAGES } from '../../../../../LanguageSelector/constants';
 
 import Button from './Button';
@@ -10,6 +11,7 @@ import { getLanguage } from './lang';
 
 const ButtonPanel = () => {
   const dispatch = useDispatch();
+  const changeLanguage = useChangeLanguage();
   const languageCode = useSelector(store => store.language);
   const language = getLanguage(languageCode);
 
@@ -22,7 +24,7 @@ const ButtonPanel = () => {
   const handleChangeLanguage = () => {
     const nextIndex = LANGUAGES.indexOf(languageCode) + 1;
     const newIndex = nextIndex >= LANGUAGES.length ? 0 : nextIndex;
-    dispatch(setLanguage(LANGUAGES[newIndex]));
+    changeLanguage(LANGUAGES[newIndex]);
   };
 
   return (
@@ -37,10 +39,11 @@ const ButtonPanel = () => {
         {`
           .buttonPanel {
             display: flex;
-            flex-direction: column;
-            width: 30px;
-            height: 87vh;
+            justify-content: center;
+            width: 100%;
             animation: arrive 1s linear;
+            margin: 2em 0 0 0;
+            background: #ebebeb;
           }
 
           @keyframes arrive {
@@ -54,7 +57,6 @@ const ButtonPanel = () => {
             }
             100% {
               opacity: 1;
-              margin-right: 0;
               -ms-transform: translate(0, 0);
               -moz-transform: translate(0, 0);
               -webkit-transform: translate(0, 0);

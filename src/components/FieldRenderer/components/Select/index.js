@@ -14,7 +14,7 @@ const Select = props => {
   const keyTranslation = getFieldKeyTranslation(languageCode);
   const language = getLanguage(languageCode);
   const project = useSelector(store => store.project);
-  const fieldName = field.name || keyTranslation[field.key];
+  const fieldName = (field.names && field.names[languageCode]) || field.name || keyTranslation[field.key];
 
   const options =
     (field.options?.length && field.options) ||
@@ -23,7 +23,6 @@ const Select = props => {
   const optionFields = options.find(option => option.key === value)?.fields;
 
   const handleChangeValue = ({ target }) => {
-    console.log('target', target);
     props.onChange(target.value);
   };
 

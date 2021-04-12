@@ -6,6 +6,7 @@ import Spinner from '../../../Spinner';
 import { uploadImage } from '../../../../services/cloudinary/image';
 import OpenableImage from '../../../OpenableImage';
 import { getFieldKeyTranslation } from '../../../../translations/fieldKeys';
+import { fieldShape } from '../../../../utils/field';
 
 const Image = props => {
   const { field, value } = props;
@@ -14,7 +15,7 @@ const Image = props => {
   const project = useSelector(store => store.project);
   const [uploading, setUploading] = useState(false);
   const input = useRef(null);
-  const fieldName = field.name || keyTranslation[field.key];
+  const fieldName = (field.names && field.names[languageCode]) || field.name || keyTranslation[field.key];
 
   const handleOpenFileSelector = () => {
     input.current.click();
@@ -73,14 +74,7 @@ const Image = props => {
 Image.propTypes = {
   value: PropTypes.string,
   readOnly: PropTypes.bool,
-  field: PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    default_value: PropTypes.any,
-    important: PropTypes.bool.isRequired,
-    input_type: PropTypes.string.isRequired,
-    is_required: PropTypes.bool.isRequired
-  }).isRequired,
+  field: fieldShape.isRequired,
   onChange: PropTypes.func
 };
 

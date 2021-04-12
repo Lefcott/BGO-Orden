@@ -6,13 +6,18 @@ import PropTypes from 'prop-types';
 import { fieldShape } from '../../utils/field';
 import { getFieldKeyTranslation } from '../../translations/fieldKeys';
 
-import Text from './components/Text';
 import List from './List';
 import Group from './Group';
+import Checkbox from './Checkbox';
+import WeekHours from './WeekHours';
+import ColorPicker from './ColorPicker';
+import Text from './components/Text';
 import Enum from './components/Enum';
 import Select from './components/Select';
+import SelectButtons from './SelectButtons';
 import Number from './components/Number';
 import Image from './components/Image';
+import { getDataFromFields } from './utils';
 import { getLanguage } from './lang';
 
 let timeoutId;
@@ -26,15 +31,17 @@ const FieldRenderer = props => {
   const [newData, setNewData] = useState(data);
 
   const handleChange = updatedData => {
-    setNewData(updatedData);
-    props.onPartialChange(updatedData);
+    const formattedData = getDataFromFields(fields, updatedData);
+    setNewData(formattedData);
+    props.onPartialChange(formattedData);
 
     if (props.saveButton) setHasChanged(true);
-    else props.onChange(updatedData);
+    else props.onChange(formattedData);
   };
 
   const handleSave = () => {
-    props.onChange(newData);
+    const formattedData = getDataFromFields(fields, newData);
+    props.onChange(formattedData);
     setHasChanged(false);
   };
 
@@ -69,7 +76,7 @@ const FieldRenderer = props => {
                 value={data[field.key]}
                 readOnly={props.readOnly}
                 onChange={value => handleUpdateData(field.key, value)}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'text':
@@ -81,7 +88,7 @@ const FieldRenderer = props => {
                 readOnly={props.readOnly}
                 multiline={false}
                 onChange={value => handleUpdateData(field.key, value)}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'textarea-small':
@@ -94,7 +101,7 @@ const FieldRenderer = props => {
                 multiline
                 rows={4}
                 onChange={value => handleUpdateData(field.key, value)}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'textarea-medium':
@@ -107,7 +114,7 @@ const FieldRenderer = props => {
                 multiline
                 rows={11}
                 onChange={value => handleUpdateData(field.key, value)}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'textarea-big':
@@ -120,7 +127,7 @@ const FieldRenderer = props => {
                 multiline
                 rows={17}
                 onChange={value => handleUpdateData(field.key, value)}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'image':
@@ -131,7 +138,7 @@ const FieldRenderer = props => {
                 value={data[field.key]}
                 readOnly={props.readOnly}
                 onChange={value => handleUpdateData(field.key, value)}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'list':
@@ -142,7 +149,7 @@ const FieldRenderer = props => {
                 value={data[field.key]}
                 readOnly={props.readOnly}
                 onChange={value => handleUpdateData(field.key, value)}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'enum':
@@ -154,7 +161,7 @@ const FieldRenderer = props => {
                 readOnly={props.readOnly}
                 onChange={value => handleUpdateData(field.key, value)}
                 FieldRenderer={FieldRenderer}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'group':
@@ -167,7 +174,7 @@ const FieldRenderer = props => {
                 multiline={false}
                 onChange={value => handleUpdateData(field.key, value)}
                 FieldRenderer={FieldRenderer}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'select':
@@ -181,7 +188,43 @@ const FieldRenderer = props => {
                 onChange={value => handleUpdateData(field.key, value)}
                 onChangeOptionData={handleUpdateOptionData}
                 FieldRenderer={FieldRenderer}
-                key={field.key}
+                key={`${props.formCode}-${field.key}`}
+              />
+            );
+          case 'select-buttons':
+            return (
+              <SelectButtons
+                options={field.select_button_options}
+                value={data[field.key]}
+                onChange={value => handleUpdateData(field.key, value)}
+                key={`${props.formCode}-${field.key}`}
+              />
+            );
+          case 'checkbox':
+            return (
+              <Checkbox
+                value={data[field.key]}
+                field={field}
+                onChange={value => handleUpdateData(field.key, value)}
+                key={`${props.formCode}-${field.key}`}
+              />
+            );
+          case 'week-hours':
+            return (
+              <WeekHours
+                value={data[field.key]}
+                field={field}
+                onChange={value => handleUpdateData(field.key, value)}
+                key={`${props.formCode}-${field.key}`}
+              />
+            );
+          case 'color':
+            return (
+              <ColorPicker
+                value={data[field.key]}
+                field={field}
+                onChange={value => handleUpdateData(field.key, value)}
+                key={`${props.formCode}-${field.key}`}
               />
             );
           case 'button':
@@ -192,27 +235,27 @@ const FieldRenderer = props => {
                   value={data[field.key]}
                   readOnly={props.readOnly}
                   onChange={value => handleUpdateData(field.key, value)}
-                  key={field.key}
+                  key={`${props.formCode}-${field.key}`}
                 >
                   {field.name || keyTranslation[field.key]}
                 </Button>
               </a>
             );
           default:
-            return <div key={field.key} />;
+            return <div key={`${props.formCode}-${field.key}`} />;
         }
       })}
       {props.backButton && <Button onClick={props.onGoBack}>{language.back}</Button>}
       {props.saveButton && (
         <Button disabled={!hasChanged && !props.alwaysShowSaveButton} onClick={handleSave}>
-          {language.save}
+          {props.saveButtonText || language.save}
         </Button>
       )}
       <style jsx>
         {`
           .fieldContainer {
             width: 88%;
-            margin-left: 6%;
+            margin: 0 0 21px 6%;
           }
         `}
       </style>
@@ -222,6 +265,7 @@ const FieldRenderer = props => {
 
 FieldRenderer.propTypes = {
   data: PropTypes.object,
+  formCode: PropTypes.string,
   fields: PropTypes.arrayOf(fieldShape),
   readOnly: PropTypes.bool,
   updateAfter: PropTypes.number,
@@ -230,12 +274,14 @@ FieldRenderer.propTypes = {
   onPartialChange: PropTypes.func,
   onGoBack: PropTypes.func,
   saveButton: PropTypes.bool,
+  saveButtonText: PropTypes.string,
   backButton: PropTypes.bool,
   alwaysShowSaveButton: PropTypes.bool
 };
 
 FieldRenderer.defaultProps = {
   data: {},
+  formCode: '',
   fields: [],
   readOnly: false,
   updateAfter: 0,
@@ -244,6 +290,7 @@ FieldRenderer.defaultProps = {
   onPartialChange: () => {},
   onGoBack: () => {},
   saveButton: false,
+  saveButtonText: '',
   backButton: false,
   alwaysShowSaveButton: false
 };
